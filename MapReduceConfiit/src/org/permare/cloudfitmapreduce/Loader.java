@@ -1,8 +1,15 @@
-/* ****************************************************************************
- *
- * CONFIIT / UTIL / LOADER 
- *
- * ***************************************************************************/
+/* *************************************************************** *
+ * PER-MARE Project (project number 13STIC07)
+ * http://cosy.univ-reims.fr/~lsteffenel/per-mare
+ * A CAPES/MAEE/ANII STIC-AmSud collaboration program.
+ * All rigths reserved to project partners:
+ *  - Universite de Reims Champagne-Ardenne, Reims, France 
+ *  - Universite Paris 1 Pantheon Sorbonne, Paris, France
+ *  - Universidade Federal de Santa Maria, Santa Maria, Brazil
+ *  - Universidad de la Republica, Montevideo, Uruguay
+ * 
+ * *************************************************************** *
+ */
 
 package org.permare.cloudfitmapreduce;
 
@@ -12,20 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-/**
- * <b>C<i>onfiit</i>: Conputation Over a Network with Finite number of 
- * Irregular Independant Tasks</b>.
- * <br><br>
- * <b>Definition du chargeur de classes general.</b>
- * <br><br>
- * Cette classe d&eacute;finit le chargeur de classes general.
- *
- * <br><br>
- * @author Pierre-Paul M&eacute;rel,<br>
- *         Universit&eacute; de Reims Champagne-Ardenne,<br>
- *         BP 1039, F-51687 Reims Cedex 2, France.
- * @version 0.7 (6 juin 2011)
- */
 public class Loader extends ClassLoader {
 
 /* ****************************************************************************
