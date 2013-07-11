@@ -1,7 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/* *************************************************************** *
+ * PER-MARE Project (project number 13STIC07)
+ * http://cosy.univ-reims.fr/~lsteffenel/per-mare
+ * A CAPES/MAEE/ANII STIC-AmSud collaboration program.
+ * All rigths reserved to project partners:
+ *  - Universite de Reims Champagne-Ardenne, Reims, France 
+ *  - Universite Paris 1 Pantheon Sorbonne, Paris, France
+ *  - Universidade Federal de Santa Maria, Santa Maria, Brazil
+ *  - Universidad de la Republica, Montevideo, Uruguay
+ * 
+ * *************************************************************** *
  */
+
 package org.permare.cloudfitmapreduce;
 
 import cloudfit.core.ActiveBlockingQueue;
@@ -20,10 +29,7 @@ import org.permare.confiitmapreduce.MapReduceConsumer;
 import org.permare.confiitmapreduce.Mapper;
 import org.permare.util.MultiMap;
 
-/**
- *
- * @author Luiz Angelo STEFFENEL <Luiz-Angelo.Steffenel@univ-reims.fr>
- */
+
 public class Community implements ServiceInterface {
 
     private long processId = 1;
@@ -65,68 +71,14 @@ public class Community implements ServiceInterface {
 
     }
 
-    public int getNodes() {
-        return 5;
-    }
+   
 
     public String plug(MapReduceConsumer obj, String[] args) {
         obj.setArgs(args);
         System.out.println(obj.numberOfBlocks());
         
         
-/* Commenté car la reflexion ne marche pas avec les génériques */       
-//        System.out.println("plugging class " + classname);
-//        Class targetClass;
-//        Loader cl = new Loader(classname);
-//        try {
-//            targetClass = cl.loadClass(classname);
-////            Method[] liste = targetClass.getMethods();
-////            for (int i=0;i<liste.length; i++)
-////            {
-////                System.out.println(liste[i].getName());
-////                Class[] params = liste[i].getParameterTypes();
-////                for (int j=0;j<params.length; ++j)
-////                {
-////                    System.out.println(" - "+params[j].getName());
-////                }
-////            }
-//
-//            // This method prepares the target class with the setArgs() method
-//            Method prepare = targetClass.getMethod("setArgs", new Class[]{String[].class});
-//
-//            Object cibleInstance = targetClass.newInstance();
-//            Class<? extends MapReduceConsumer> sub = targetClass.asSubclass(MapReduceConsumer.class);
-//            MapReduceConsumer cons = (MapReduceConsumer) sub.newInstance();
-//            System.out.println(cons.numberOfBlocks());
-//            
-////            prepare.invoke(cibleInstance, (Object) args);
-////
-////            // This method gets the number of tasks in this Job
-////            Method nbTasks = targetClass.getMethod("numberOfBlocks", (java.lang.Class[]) null);
-////
-////            Object[] params = null;
-////            Object nb = nbTasks.invoke(cibleInstance, params);
-////
-////            int number = ((Integer) nb).intValue();
-////            System.out.println(number);
-////
-////
-////            // This method gets the number of tasks in this Job
-////            Method produceBlock = targetClass.getMethod("produceBlock", new Class[]{int.class, Serializable[].class});
-////            Object[] produceParams = new Object[]{1, null};
-////
-////
-////            Object res = produceBlock.invoke(cibleInstance, produceParams);
-////            System.out.println("res is a "+res.getClass().getName() + 
-////                    " instanceof : " + (res instanceof MultiMap));
-////            
-////            //Serializable ser = (Serializable)produceBlock.invoke(cibleInstance, produceParams);
-////            //MultiMap<String, Integer> serRes = (MultiMap<String, Integer>)produceBlock.invoke(cibleInstance, produceParams);;
-//////            try {
-//////                serRes = (MultiMap<String, Integer>) res;
-//////            } catch (ClassCastException ex) {
-//////                ex.printStackTrace();
-////////            }
+
         
         MultiMap<String,Integer> serRes = (MultiMap<String,Integer>)obj.produceBlock(1, null);
              for (int i = 0; i < serRes.getKeys().size(); ++i) {
