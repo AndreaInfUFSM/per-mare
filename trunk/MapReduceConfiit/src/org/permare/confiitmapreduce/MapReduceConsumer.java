@@ -32,7 +32,7 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
     
     
 
-    /* consumes a block of data, adding it to the accumulator.
+    /** consumes a block of data, adding it to the accumulator.
      * This method can be compared to a <i>combiner</i> into Hadoop. It groups
      * results from a block, putting them into a shared variable, the accumulator. 
      * 
