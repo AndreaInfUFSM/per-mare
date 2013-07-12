@@ -16,12 +16,12 @@ package org.permare.cloudfitmapreduce;
 import java.io.Serializable;
 
 
-public class CommunityMessage {
+public class TaskStatusMessage implements Serializable{
     private int jobId = -1;
     private int taskId = -1;
     private Serializable TaskValue = null;
     
-    public CommunityMessage(int jobId, int taskId, Serializable value)
+    public TaskStatusMessage(int jobId, int taskId, Serializable value)
     {
         this.jobId = jobId;
         this.taskId = taskId;
