@@ -13,6 +13,7 @@
 package org.permare.cloudfitmapreduce;
 
 import cloudfit.core.ActiveBlockingQueue;
+import cloudfit.core.ApplicationInterface;
 import cloudfit.core.Distributed;
 import cloudfit.core.Message;
 import cloudfit.core.ORBInterface;
@@ -70,7 +71,7 @@ public class Community implements ServiceInterface {
                 jobId = ((JobMessage) obj).getJobId();
                 System.out.println("a new job has arrived!");
 
-                Distributed jobClass = ((JobMessage) obj).getJobClass();
+                ApplicationInterface jobClass = ((JobMessage) obj).getJobClass();
 
                 ThreadSolve TS = new ThreadSolve(this, jobId, jobClass, ((JobMessage) obj).getArgs());
                 Jobs.add(TS);
@@ -124,7 +125,7 @@ public class Community implements ServiceInterface {
 
     }
 
-    public int plug(Distributed obj, String[] args) {
+    public int plug(ApplicationInterface obj, String[] args) {
 
         jobId++;
         JobMessage jm = new JobMessage(jobId, obj, args);

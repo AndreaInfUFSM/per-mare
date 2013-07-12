@@ -4,8 +4,7 @@
  */
 package org.permare.cloudfitmapreduce;
 
-import cloudfit.core.Distributed;
-import cloudfit.core.Message;
+import cloudfit.core.ApplicationInterface;
 import cloudfit.core.ServiceInterface;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,10 +35,10 @@ public class ThreadSolve extends Thread {
     }
     private ArrayList<TaskStatus> taskList = null;
     private ExecutorService executor;
-    private Distributed jobClass;
+    private ApplicationInterface jobClass;
     private ServiceInterface service;
 
-    public ThreadSolve(ServiceInterface service, int jobId, Distributed jobClass, String[] args) {
+    public ThreadSolve(ServiceInterface service, int jobId, ApplicationInterface jobClass, String[] args) {
         this.service = service;
         this.jobId = jobId;
         this.executor = Executors.newFixedThreadPool(1);
@@ -57,7 +56,7 @@ public class ThreadSolve extends Thread {
             try {
                 // creates a new instance to avoid threads sharing the same object
                 // in the future, replace by a clone or a sandbox execution
-                Distributed jobInstance = jobClass.getClass().newInstance();
+                ApplicationInterface jobInstance = jobClass.getClass().newInstance();
                 jobInstance.setArgs(jobClass.getArgs());
                 jobInstance.initNumberOfBlocks();
                 
