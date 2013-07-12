@@ -138,7 +138,7 @@ public class MRLauncher<K, V> {
             // ici on indique la classe qui fera le MAP
             mapper = community.plug(this.getMapper(), this.getMapArguments());
             System.out.println(mapper);
-            //community.waitJob();
+            community.waitJob();
         } catch (Exception ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }

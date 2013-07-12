@@ -175,6 +175,9 @@ public class Community implements ServiceInterface {
             taskList.add(new TaskStatus(jobId, i));
         }
         Collections.shuffle(taskList);
+        Collections.shuffle(taskList);
+        Collections.shuffle(taskList);
+        
         System.out.println("Tasklist ready " + nbTasks);
         for (int i = 0; i < nbTasks; ++i) {
             System.out.print(taskList.get(i).getTaskId() + "[" + taskList.get(i).getStatus() + "] - ");
