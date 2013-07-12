@@ -17,10 +17,10 @@ import java.util.logging.Logger;
 public class WorkerThread implements Runnable {
 
     private ApplicationInterface jobClass;
-    private ServiceInterface app;
+    private ThreadSolve app;
     private TaskStatus taskId;
     
-    public WorkerThread (ServiceInterface app, ApplicationInterface obj, TaskStatus ts) {
+    public WorkerThread (ThreadSolve app, ApplicationInterface obj, TaskStatus ts) {
         this.app = app;
         this.jobClass = obj;
         this.taskId = ts;    
@@ -34,7 +34,8 @@ public class WorkerThread implements Runnable {
             taskId.setStatus(TaskStatus.STARTED);
             solve();
             try {
-                Thread.sleep(3);
+                // This sleep is just to allow data exchange between tasks, we MAY remove it after tests
+                Thread.sleep(1000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(WorkerThread.class.getName()).log(Level.SEVERE, null, ex);
             }

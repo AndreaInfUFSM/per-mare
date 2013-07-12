@@ -42,24 +42,24 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
      * @param value block content
      * @return MultiMap<K, V> containing the modified segment (the accumulator once updated)
      */
-    public Serializable consumeBlock(int number, Serializable value) {
+    public void consumeBlock(Serializable accumulator, int number, Serializable value) {
         if (debug) {
             System.out.println("## consumeBlock " + number + ", " + value);
         }
 
-        if (number >= getNumberOfBlocks()) {
-            return getAccumulator();
-        }
+//        if (number >= getNumberOfBlocks()) {
+//            return getAccumulator();
+//        }
 
 
-        MultiMap<K, V> accumulator;
-        try {
-            accumulator = (MultiMap<K, V>) getAccumulator();
-        } catch (ClassCastException ex) {
-            accumulator = new MultiMap<K, V>();
-        }
+//        MultiMap<K, V> accumulator;
+//        try {
+//            accumulator = (MultiMap<K, V>) getAccumulator();
+//        } catch (ClassCastException ex) {
+//            accumulator = new MultiMap<K, V>();
+//        }
 
-        accumulator.putAll ((MultiMap<K, V>) value);
+        ((MultiMap<K,V>)accumulator).putAll ((MultiMap<K, V>) value);
         
         /*
         Set<K> keys = dataset.getKeys();
@@ -76,7 +76,7 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
         }
         */
         
-        return accumulator;
+        //return accumulator;
     }
 
     /**
@@ -108,7 +108,9 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
         return getAccumulator();
     }
 
-    public abstract int numberOfBlocks();
+    public abstract void setNumberOfBlocks(int nbBlocks);
+
+    public abstract void initNumberOfBlocks();
 
     public abstract Serializable produceBlock(int number, Serializable[] required);
 }
