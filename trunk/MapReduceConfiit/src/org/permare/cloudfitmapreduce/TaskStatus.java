@@ -17,17 +17,26 @@ import java.io.Serializable;
 
 public class TaskStatus {
     
-    public final int NEW = 0;
-    public final int STARTED = 1;
-    public final int LOCAL = 2;
-    public final int GLOBAL = 3;
+    public static int NEW = 0;
+    public static int STARTED = 1;
+    public static int COMPLETED = 2;
     
+    private int jobId;
     private int taskId;
     private int status = 0;
     private Serializable taskResult = null;
     
-    public TaskStatus(int num)
+    public int getJobId() {
+        return jobId;
+    }
+
+    public void setJobId(int jobId) {
+        this.jobId = jobId;
+    }
+    
+    public TaskStatus(int jobId, int num)
     {
+        setJobId(jobId);
         setTaskId(num);
     }
     

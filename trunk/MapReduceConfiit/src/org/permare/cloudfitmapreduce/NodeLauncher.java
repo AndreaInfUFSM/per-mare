@@ -27,7 +27,7 @@ import org.permare.confiitmapreduce.Mapper;
 import org.permare.util.FileHandler;
 import org.permare.util.MultiMap;
 
-public class MRLauncher<K, V> {
+public class NodeLauncher<K, V> {
 
     private MapReduceConsumer mapperClass;
     private String reducerClass;
@@ -36,7 +36,7 @@ public class MRLauncher<K, V> {
     
     private Community community;
 
-    public MRLauncher() {
+    public NodeLauncher() {
         this.mapperClass = null;
         this.reducerClass = "";
     }
@@ -112,22 +112,22 @@ public class MRLauncher<K, V> {
         
         ///////////////////////////////////////
         
-        try {
-            
-            mapper = this.runMapper(community);
-
-//            String[] reduceargs = new String[2];
-//            reduceargs[0] = mapper;
-//            // reduceargs[1] indique combien de tasks REDUCE seront créées
-//            reduceargs[1] = Integer.toString(community.getNodes());
-//            Thread.sleep(1000);
-//            intRes = this.runReducer(community, reduceargs);
+//        try {
+//            
+//            mapper = this.runMapper(community);
 //
-//            this.saveOutput(intRes);
-
-        } catch (Exception ex) {
-            ex.printStackTrace(System.out);
-        }
+////            String[] reduceargs = new String[2];
+////            reduceargs[0] = mapper;
+////            // reduceargs[1] indique combien de tasks REDUCE seront créées
+////            reduceargs[1] = Integer.toString(community.getNodes());
+////            Thread.sleep(1000);
+////            intRes = this.runReducer(community, reduceargs);
+////
+////            this.saveOutput(intRes);
+//
+//        } catch (Exception ex) {
+//            ex.printStackTrace(System.out);
+//        }
 
         return intRes;
     }
@@ -138,9 +138,9 @@ public class MRLauncher<K, V> {
             // ici on indique la classe qui fera le MAP
             mapper = community.plug(this.getMapper(), this.getMapArguments());
             System.out.println(mapper);
-            //community.waitJob();
+            //community.wait(mapper);
         } catch (Exception ex) {
-            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NodeLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return mapper;
 
@@ -155,7 +155,7 @@ public class MRLauncher<K, V> {
 
             //res = (MultiMap<K, V>) community.getResult(reducer, true);
         } catch (Exception ex) {
-            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NodeLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return res;
     }
@@ -199,7 +199,7 @@ public class MRLauncher<K, V> {
 
         
         
-        MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
+        NodeLauncher<String, Integer> job = new NodeLauncher<String, Integer>();
         try {
             job.setOutputDirectory(args[1]);
             job.setMapper(new Mapper());
