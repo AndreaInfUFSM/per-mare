@@ -13,16 +13,16 @@
 
 package org.permare.cloudfitmapreduce;
 
-import cloudfit.core.Distributed;
+import cloudfit.core.ApplicationInterface;
 import java.io.Serializable;
 
 
 public class JobMessage implements Serializable {
     private int jobId = -1;
     private String[] args = null;
-    private Distributed jobClass = null;
+    private ApplicationInterface jobClass = null;
     
-    public JobMessage(int jobId, Distributed obj, String[] args)
+    public JobMessage(int jobId, ApplicationInterface obj, String[] args)
     {
         this.jobId = jobId;
         this.args = args;
@@ -39,7 +39,7 @@ public class JobMessage implements Serializable {
         return args;
     }
         
-    public Distributed getJobClass()
+    public ApplicationInterface getJobClass()
     {
         return jobClass;
     }

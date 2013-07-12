@@ -12,6 +12,7 @@
  */
 package org.permare.cloudfitmapreduce;
 
+import cloudfit.core.ApplicationInterface;
 import cloudfit.core.CoreORB;
 import cloudfit.core.CoreQueue;
 import cloudfit.core.Distributed;
@@ -30,7 +31,7 @@ import org.permare.util.MultiMap;
 
 public class NodeLauncher<K, V> {
 
-    private Distributed mapperClass;
+    private ApplicationInterface mapperClass;
     private String reducerClass;
     private String[] mapargs;
     private String outputDirectory;
@@ -46,11 +47,11 @@ public class NodeLauncher<K, V> {
         this.reducerClass = classname;
     }
 
-    public void setMapper(Distributed classname) {
+    public void setMapper(ApplicationInterface classname) {
         this.mapperClass = classname;
     }
 
-    public Distributed getMapper() {
+    public ApplicationInterface getMapper() {
         return this.mapperClass;
     }
 
