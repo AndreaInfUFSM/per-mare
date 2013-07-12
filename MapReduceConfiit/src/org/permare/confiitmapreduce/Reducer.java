@@ -38,7 +38,7 @@ public class Reducer extends MapReduceConsumer {
      * @return number of blocks in the segment
      */
     @Override
-    public int numberOfBlocks() {
+    public void initNumberOfBlocks() {
         int nb = 1;
         try {
             nb = Integer.parseInt(getArgs()[1]);  // Nombre de taches a renvoyer
@@ -46,8 +46,9 @@ public class Reducer extends MapReduceConsumer {
         } catch (Exception ex) {
             nb = 1;
         }
+        nbBlocks = nb;
 
-        return nb;
+        //return nb;
     }
 
     /**
@@ -66,7 +67,7 @@ public class Reducer extends MapReduceConsumer {
         try {
             MultiMap<String, Integer> accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
 
-            int step = (int) Math.ceil(accumulator.getKeys().size() / numberOfBlocks());
+            int step = (int) Math.ceil(accumulator.getKeys().size() / getNumberOfBlocks());
             for (int i = number * step; i < Math.min((number + 1) * step, accumulator.getKeys().size()); ++i) {
 
                 String key = accumulator.getKey(i);
@@ -113,5 +114,15 @@ public class Reducer extends MapReduceConsumer {
         }
 
         return result;
+    }
+
+    @Override
+    public int getNumberOfBlocks() {
+        return nbBlocks;
+    }
+
+    @Override
+    public void setNumberOfBlocks(int nbBlocks) {
+        this.nbBlocks=nbBlocks;
     }
 }

@@ -30,7 +30,7 @@ import org.permare.wordcounter.CounterExample;
  */
 public class Mapper extends MapReduceConsumer {
 
-    private final boolean debug = true;
+    private final boolean debug = false;
     private List<File> filenames = new ArrayList<File>();
     
     
@@ -56,24 +56,7 @@ public class Mapper extends MapReduceConsumer {
         return acc;
     }
 
-    /**
-     * Evaluates the number of blocks in a resource segment. This number must be
-     * always greater than 0.
-     *
-     * @return int number of blocks in the segment
-     */
-    @Override
-    public int numberOfBlocks() {
-        int nb = 0; // Nombre de taches a renvoyer
-        long length = 0;
-
-        //sur le lanceur on n'execute pas initializeConsumer, donc on l'appelle ici
-        setBlockParameters();
-        // on aura autant de tâches MAP que de fichiers
-        nb = filenames.size();
-        System.out.println("on a "+ nb + " blocs à traiter");
-        return nb;
-    }
+    
     
 
     /**
@@ -151,5 +134,35 @@ public class Mapper extends MapReduceConsumer {
         }
 
         return true;
+    }
+
+    @Override
+    public int getNumberOfBlocks() {
+        return nbBlocks;
+    }
+
+    @Override
+    public void setNumberOfBlocks(int nbBlocks) {
+        this.nbBlocks=nbBlocks;
+    }
+    
+    /**
+     * Evaluates the number of blocks in a resource segment. This number must be
+     * always greater than 0.
+     *
+     * @return int number of blocks in the segment
+     */
+    @Override
+    public void initNumberOfBlocks() {
+        int nb = 0; // Nombre de taches a renvoyer
+        long length = 0;
+
+        //sur le lanceur on n'execute pas initializeConsumer, donc on l'appelle ici
+        setBlockParameters();
+        // on aura autant de tâches MAP que de fichiers
+        nb = filenames.size();
+        nbBlocks = nb;
+        //System.out.println("on a "+ nb + " blocs à traiter");
+        //return nb;
     }
 }

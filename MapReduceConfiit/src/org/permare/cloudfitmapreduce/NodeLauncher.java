@@ -14,22 +14,23 @@ package org.permare.cloudfitmapreduce;
 
 import cloudfit.core.CoreORB;
 import cloudfit.core.CoreQueue;
+import cloudfit.core.Distributed;
 import cloudfit.network.EasyPastryAdapter;
 import cloudfit.network.NetworkAdapterInterface;
 import java.io.File;
+import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.permare.confiitmapreduce.MapReduceConsumer;
 import org.permare.confiitmapreduce.Mapper;
 import org.permare.util.FileHandler;
 import org.permare.util.MultiMap;
 
 public class NodeLauncher<K, V> {
 
-    private MapReduceConsumer mapperClass;
+    private Distributed mapperClass;
     private String reducerClass;
     private String[] mapargs;
     private String outputDirectory;
@@ -45,11 +46,11 @@ public class NodeLauncher<K, V> {
         this.reducerClass = classname;
     }
 
-    public void setMapper(MapReduceConsumer classname) {
+    public void setMapper(Distributed classname) {
         this.mapperClass = classname;
     }
 
-    public MapReduceConsumer getMapper() {
+    public Distributed getMapper() {
         return this.mapperClass;
     }
 
@@ -74,7 +75,7 @@ public class NodeLauncher<K, V> {
     }
 
     public MultiMap<K, V> runJob() {
-        String mapper;                  // Identifiant de l'instance Mapper
+        Serializable mapper;                  // Result de l'instance Mapper
         MultiMap<K, V> intRes = null;
 
         ///////////////////// Pastry
@@ -132,17 +133,18 @@ public class NodeLauncher<K, V> {
         return intRes;
     }
 
-    private String runMapper(Community community) {
-        String mapper = null;// Identifiant de l'instance Mapper
+    private Serializable runMapper(Community community) {
+        int mapper = 0;// Identifiant de l'instance Mapper
+        Serializable result = null;
         try {
             // ici on indique la classe qui fera le MAP
             mapper = community.plug(this.getMapper(), this.getMapArguments());
             System.out.println(mapper);
-            //community.wait(mapper);
+            result = community.waitJob(mapper);
         } catch (Exception ex) {
             Logger.getLogger(NodeLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return mapper;
+        return result;
 
     }
 

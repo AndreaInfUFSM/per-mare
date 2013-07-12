@@ -26,6 +26,7 @@ public class TaskStatus {
     private int status = 0;
     private Serializable taskResult = null;
     
+    
     public int getJobId() {
         return jobId;
     }
