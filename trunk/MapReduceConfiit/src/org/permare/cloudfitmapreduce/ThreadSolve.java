@@ -41,7 +41,9 @@ public class ThreadSolve extends Thread {
     public ThreadSolve(ServiceInterface service, int jobId, ApplicationInterface jobClass, String[] args) {
         this.service = service;
         this.jobId = jobId;
-        this.executor = Executors.newFixedThreadPool(1);
+        // in production, replace 1 by System.getRuntime().availableProcessors() or a command-line parameter -nbthread
+        //this.executor = Executors.newFixedThreadPool(1);
+        this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         this.jobClass = jobClass;
         jobClass.setArgs(args);
         jobClass.initNumberOfBlocks();

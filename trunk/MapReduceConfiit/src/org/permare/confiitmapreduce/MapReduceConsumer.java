@@ -26,7 +26,7 @@ import org.permare.util.MultiMap;
  */
 public abstract class MapReduceConsumer<K, V> extends Distributed {
 
-    private final boolean debug = true;
+    private final boolean debug = false;
     
     
     
