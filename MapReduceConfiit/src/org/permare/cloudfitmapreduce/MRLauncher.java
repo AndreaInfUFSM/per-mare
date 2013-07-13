@@ -34,7 +34,6 @@ public class MRLauncher<K, V> {
     private String reducerClass;
     private String[] mapargs;
     private String outputDirectory;
-    
     private Community community;
 
     public MRLauncher() {
@@ -79,12 +78,12 @@ public class MRLauncher<K, V> {
         MultiMap<K, V> intRes = null;
 
         ///////////////////// Pastry
-        
+
         /* Declaration of the main class
          * all the internal initialization is made on the constructor
          */
         CoreORB TDTR = new CoreORB();
-        
+
         /* Define if connecting to a peer or network discovery
          * 
          */
@@ -95,27 +94,28 @@ public class MRLauncher<K, V> {
         if (mapargs.length > 2) {
             InetSocketAddress peer = new InetSocketAddress(mapargs[2], Integer.parseInt(mapargs[3]));
             P2P = new EasyPastryAdapter(queue, peer);
-            
+
         } else {
             // if peer == null then launch discovery
             P2P = new EasyPastryAdapter(queue);
         }
         TDTR.setNetworkAdapter(P2P);
-        
-        
+
+
 
         /* creates a module to plug on the main class
          * and subscribe it to the messaging system
          */
         community = new Community(1, TDTR);
-        
+
         TDTR.subscribe(community);
-        
+
         ///////////////////////////////////////
-        
-        try {
-            
-            mapper = this.runMapper(community);
+
+        //try {
+
+        intRes = (MultiMap<K, V>) this.runMapper(community);
+
 
 //            String[] reduceargs = new String[2];
 //            reduceargs[0] = mapper;
@@ -126,21 +126,21 @@ public class MRLauncher<K, V> {
 //
 //            this.saveOutput(intRes);
 
-        } catch (Exception ex) {
-            ex.printStackTrace(System.out);
-        }
+//        } catch (Exception ex) {
+//            ex.printStackTrace(System.out);
+//        }
 
         return intRes;
     }
 
     private Serializable runMapper(Community community) {
-        int mapper = 0;// Identifiant de l'instance Mapper
+        int mapperId = 0;// Identifiant de l'instance Mapper
         Serializable result = null;
         try {
             // ici on indique la classe qui fera le MAP
-            mapper = community.plug(this.getMapper(), this.getMapArguments());
-            System.out.println(mapper);
-            result = community.waitJob(mapper);
+            mapperId = community.plug(this.getMapper(), this.getMapArguments());
+            System.out.println("mapperId =" + mapperId);
+            result = community.waitJob(mapperId);
         } catch (Exception ex) {
             Logger.getLogger(NodeLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -154,7 +154,6 @@ public class MRLauncher<K, V> {
         try {
             //String reducer = community.plug(this.getReducer(), reduceargs);
             //community.wait(reducer);
-
             //res = (MultiMap<K, V>) community.getResult(reducer, true);
         } catch (Exception ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
@@ -199,8 +198,8 @@ public class MRLauncher<K, V> {
         long end;
         start = System.currentTimeMillis();
 
-        
-        
+
+
         MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
         try {
             job.setOutputDirectory(args[1]);
@@ -212,8 +211,30 @@ public class MRLauncher<K, V> {
             //job.setReducer("Reducer");
 
             MultiMap<String, Integer> res = job.runJob();
+            //MultiMap<String, Integer> res=new MultiMap<String,Integer>();
+            //res.putAll(copyres);
+            
+            
+            // TODO : Iterator raises a ConcurrentModificationException when iterating over result MultiMap
+            // a possible solution would be a clone() method that returns a fresh "independent" multimap
+            
+            System.out.println("mapper2  =" + res);
+                // prints Mapper intermediate results
 
-            countTotal(res);
+                Set<String> keys = res.getKeys();
+                System.out.println("keys size = " + keys.size());
+                Iterator ikeys = keys.iterator();
+                while (ikeys.hasNext()) {
+                    String key = (String) ikeys.next();
+                    System.out.print(key + " - ");
+                    Iterator it = res.keyIterator(key);
+                    while (it.hasNext()) {
+                        System.out.print(it.next());
+                    }
+                    System.out.println("");
+                }
+
+            //countTotal(res);
 
         } catch (Exception ex) {
             System.err.println(ex.getMessage());

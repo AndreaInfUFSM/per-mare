@@ -14,22 +14,18 @@ package org.permare.cloudfitmapreduce;
 
 import cloudfit.core.ActiveBlockingQueue;
 import cloudfit.core.ApplicationInterface;
-import cloudfit.core.Distributed;
 import cloudfit.core.Message;
 import cloudfit.core.ORBInterface;
 import cloudfit.core.ServiceInterface;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Community implements ServiceInterface {
 
-    private int jobId = 0;
+    private int jobId = -1;
     private long processId = 1;
     private ActiveBlockingQueue appQueue = null;
     private ORBInterface router = null;
@@ -40,7 +36,7 @@ public class Community implements ServiceInterface {
         this.appQueue = new ActiveBlockingQueue(this.processId, this);
         this.router = na;
         this.Jobs = new ArrayList<ThreadSolve>();
-        // in production, replace 1 by System.getRuntime().availableProcessors() or a command-line parameter -nbthread
+
     }
 
     public void put(Serializable obj) {
@@ -60,7 +56,7 @@ public class Community implements ServiceInterface {
     public void notify(Serializable obj) {
 
         if (obj.getClass() == JobMessage.class) {
-            boolean existing  = false;
+            boolean existing = false;
             for (int i = 0; i < Jobs.size(); i++) {
                 if (Jobs.get(i).getJobId() == ((JobMessage) obj).getJobId()) {
                     existing = true;
@@ -127,7 +123,8 @@ public class Community implements ServiceInterface {
 
     public int plug(ApplicationInterface obj, String[] args) {
 
-        jobId++;
+        ++jobId;
+
         JobMessage jm = new JobMessage(jobId, obj, args);
         router.sendAll(new Message(new Long(processId), jm));
 
@@ -148,6 +145,23 @@ public class Community implements ServiceInterface {
 
     public Serializable waitJob(int waitingJobId) {
 
+        boolean started = false;
+        do {
+            Iterator<ThreadSolve> it = Jobs.iterator();
+            while (it.hasNext()) {
+                ThreadSolve element = it.next();
+                if (element.getJobId() == waitingJobId) {
+                    started = true;
+                }
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Community.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } while (started == false);
+
+
         for (int i = 0; i < Jobs.size(); i++) {
             if (Jobs.get(i).getJobId() == waitingJobId) {
                 while (Jobs.get(i).isFinished() == false) {
@@ -157,21 +171,23 @@ public class Community implements ServiceInterface {
                         Logger.getLogger(Community.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-                return Jobs.get(i).getResult();
+                Serializable result = Jobs.get(i).getResult();
+                System.out.println("result = " + result);
+
+
+                return result;
             }
         }
         return null;
     }
 
-    
-
     @Override
-        public void send(Serializable msg) {
+    public void send(Serializable msg) {
         router.sendNext(new Message(new Long(processId), msg));
     }
 
     @Override
-        public void sendAll(Serializable msg) {
+    public void sendAll(Serializable msg) {
         //System.out.println("Sending"+msg.getClass());
         router.sendAll(new Message(new Long(processId), msg));
     }
