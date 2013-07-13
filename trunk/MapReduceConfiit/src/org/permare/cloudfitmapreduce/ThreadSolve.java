@@ -76,12 +76,13 @@ public class ThreadSolve extends Thread {
         } catch (InterruptedException ex) {
             Logger.getLogger(Community.class.getName()).log(Level.SEVERE, null, ex);
         }
-        Finished = true;
         System.out.println("fini !!!");
         for (int i = 0; i < taskList.size(); i++) {
             System.out.print(taskList.get(i).getTaskId() + "#" + taskList.get(i).getStatus() + "# - ");
         }
         finalizeResult();
+        Finished = true;
+        
     }
 
     public void startTaskList(int jobId, int nbTasks) {
