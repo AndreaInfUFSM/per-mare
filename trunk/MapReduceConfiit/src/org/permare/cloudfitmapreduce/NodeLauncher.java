@@ -92,6 +92,7 @@ public class NodeLauncher<K, V> {
          * 
          */
         CoreQueue queue = new CoreQueue();
+        queue.start();
         TDTR.setQueue(queue);
 
         NetworkAdapterInterface P2P = null;

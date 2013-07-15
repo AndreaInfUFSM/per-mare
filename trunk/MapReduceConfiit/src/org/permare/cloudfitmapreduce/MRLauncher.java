@@ -89,6 +89,7 @@ public class MRLauncher<K, V> {
          * 
          */
         CoreQueue queue = new CoreQueue();
+        queue.start();
         TDTR.setQueue(queue);
 
         NetworkAdapterInterface P2P = null;
