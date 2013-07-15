@@ -136,15 +136,16 @@ public class Mapper extends MapReduceConsumer {
         return true;
     }
 
-    @Override
-    public int getNumberOfBlocks() {
-        return nbBlocks;
-    }
-
-    @Override
-    public void setNumberOfBlocks(int nbBlocks) {
-        this.nbBlocks=nbBlocks;
-    }
+// this code have been migrated to the super class.    
+//    @Override
+//    public int getNumberOfBlocks() {
+//        return nbBlocks;
+//    }
+//
+//    @Override
+//    public void setNumberOfBlocks(int nbBlocks) {
+//        this.nbBlocks=nbBlocks;
+//    }
     
     /**
      * Evaluates the number of blocks in a resource segment. This number must be
@@ -161,7 +162,8 @@ public class Mapper extends MapReduceConsumer {
         setBlockParameters();
         // on aura autant de tâches MAP que de fichiers
         nb = filenames.size();
-        nbBlocks = nb;
+        //nbBlocks = nb;
+        this.setNumberOfBlocks(nb);
         //System.out.println("on a "+ nb + " blocs à traiter");
         //return nb;
     }

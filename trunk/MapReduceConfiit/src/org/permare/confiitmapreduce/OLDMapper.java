@@ -28,7 +28,7 @@ import org.permare.wordcounter.CounterExample;
  * 
  * @author kirsch
  */
-public class Mapper extends MapReduceConsumer {
+public class OLDMapper extends OLDMapReduceConsumer {
 
     private final boolean debug = false;
     private List<File> filenames = new ArrayList<File>();
@@ -100,7 +100,7 @@ public class Mapper extends MapReduceConsumer {
     }
 
     /**
-     * looks for input files on the arguments. If argument is a directory, it
+     * looks for input files on the <i>first</i> argument. If argument is a directory, it
      * includes all files inside, recursively.
      */
     private void setBlockParameters() {
@@ -136,21 +136,24 @@ public class Mapper extends MapReduceConsumer {
         return true;
     }
 
-    @Override
-    public int getNumberOfBlocks() {
-        return nbBlocks;
-    }
-
-    @Override
-    public void setNumberOfBlocks(int nbBlocks) {
-        this.nbBlocks=nbBlocks;
-    }
+  // methods transfered to the super class  
+  //  @Override
+  //  public int getNumberOfBlocks() {
+  //      return nbBlocks;
+  //  }
+  //
+//    @Override
+//    public void setNumberOfBlocks(int nbBlocks) {
+//        this.nbBlocks=nbBlocks;
+//    }
+//  
     
     /**
      * Evaluates the number of blocks in a resource segment. This number must be
      * always greater than 0.
      *
-     * @return int number of blocks in the segment
+     * It calculates the number of blocks in the segment based on the number of
+     * files found in the first parameter. 
      */
     @Override
     public void initNumberOfBlocks() {
@@ -161,8 +164,10 @@ public class Mapper extends MapReduceConsumer {
         setBlockParameters();
         // on aura autant de tâches MAP que de fichiers
         nb = filenames.size();
-        nbBlocks = nb;
+        //nbBlocks = nb;
+        this.setNumberOfBlocks(nb);
         //System.out.println("on a "+ nb + " blocs à traiter");
         //return nb;
     }
+
 }

@@ -118,9 +118,12 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
         return getAccumulator();
     }
 
-    public abstract void setNumberOfBlocks(int nbBlocks);
+    //this method is now defined on the superclass
+    //public abstract void setNumberOfBlocks(int nbBlocks);
 
+    @Override
     public abstract void initNumberOfBlocks();
 
+    @Override
     public abstract Serializable produceBlock(int number, Serializable[] required);
 }

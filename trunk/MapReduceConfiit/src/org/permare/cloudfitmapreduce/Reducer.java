@@ -51,8 +51,8 @@ public class Reducer extends MapReduceConsumer {
         } catch (Exception ex) {
             nb = 1;
         }
-        nbBlocks = nb;
-
+        this.setNumberOfBlocks(nb);
+        //nbBlocks = nb;
         //return nb;
     }
 
@@ -145,13 +145,14 @@ public class Reducer extends MapReduceConsumer {
         return element;
     }
 
-    @Override
-    public int getNumberOfBlocks() {
-        return nbBlocks;
-    }
-
-    @Override
-    public void setNumberOfBlocks(int nbBlocks) {
-        this.nbBlocks = nbBlocks;
-    }
+// this code was mouved to the super class.     
+//    @Override
+//    public int getNumberOfBlocks() {
+//        return nbBlocks;
+//    }
+//
+//    @Override
+//    public void setNumberOfBlocks(int nbBlocks) {
+//        this.nbBlocks = nbBlocks;
+//    }
 }

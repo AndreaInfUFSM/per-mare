@@ -24,7 +24,7 @@ import cloudfit.util.MultiMap;
  * 
  * @author kirsch
  */
-public abstract class MapReduceConsumer<K, V> extends Distributed {
+public abstract class OLDMapReduceConsumer<K, V> extends Distributed {
 
     private final boolean debug = false;
     
@@ -108,7 +108,7 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
         return getAccumulator();
     }
 
-    public abstract void setNumberOfBlocks(int nbBlocks);
+  //  public abstract void setNumberOfBlocks(int nbBlocks);
 
     public abstract void initNumberOfBlocks();
 
