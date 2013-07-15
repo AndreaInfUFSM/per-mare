@@ -10,7 +10,7 @@
  * 
  * *************************************************************** *
  */
-package org.permare.confiitmapreduce;
+package org.permare.cloudfitmapreduce;
 
 //import confiit.*;
 //import confiit.util.Display;
@@ -31,8 +31,8 @@ import org.permare.wordcounter.CounterExample;
 public class Mapper extends MapReduceConsumer {
 
     private final boolean debug = false;
-    private List<File> filenames = new ArrayList<File>();
-    
+    //private List<File> filenames = new ArrayList<File>();
+    private List<File> filenames = new java.util.concurrent.CopyOnWriteArrayList<File>();
     
     public List getFilenames() {
         return this.filenames;

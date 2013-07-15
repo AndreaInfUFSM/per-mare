@@ -10,11 +10,11 @@
  * 
  * *************************************************************** *
  */
-package org.permare.confiitmapreduce;
+package org.permare.cloudfitmapreduce;
 
 import cloudfit.application.Distributed;
-import java.io.Serializable;
 import cloudfit.util.MultiMap;
+import java.io.Serializable;
 
 /**
  * Base class for Mapper and Reducer implementations over Confiit.

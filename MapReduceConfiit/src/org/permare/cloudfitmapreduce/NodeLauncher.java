@@ -12,12 +12,15 @@
  */
 package org.permare.cloudfitmapreduce;
 
-import cloudfit.core.ApplicationInterface;
+import cloudfit.core.Community;
+import cloudfit.application.ApplicationInterface;
 import cloudfit.core.CoreORB;
 import cloudfit.core.CoreQueue;
-import cloudfit.core.Distributed;
+import cloudfit.application.Distributed;
 import cloudfit.network.EasyPastryAdapter;
 import cloudfit.network.NetworkAdapterInterface;
+import cloudfit.storage.SerializedDiskStorage;
+import cloudfit.util.MultiMap;
 import java.io.File;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -27,7 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.permare.confiitmapreduce.Mapper;
 import org.permare.util.FileHandler;
-import org.permare.util.MultiMap;
 
 public class NodeLauncher<K, V> {
 
@@ -103,7 +105,7 @@ public class NodeLauncher<K, V> {
         }
         TDTR.setNetworkAdapter(P2P);
         
-        
+        TDTR.setStorage(new SerializedDiskStorage());
 
         /* creates a module to plug on the main class
          * and subscribe it to the messaging system

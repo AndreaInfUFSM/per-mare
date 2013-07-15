@@ -12,8 +12,8 @@
  */
 package org.permare.wordcounter;
 
+import cloudfit.util.MultiMap;
 import java.util.Iterator;
-import org.permare.util.MultiMap;
 
 /**
  * CounterExample is a test class allowing counting words in a text. It can be

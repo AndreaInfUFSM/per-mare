@@ -10,17 +10,20 @@
  * 
  * *************************************************************** *
  */
-package org.permare.confiitmapreduce;
+package org.permare.cloudfitmapreduce;
 
 //import confiit.util.Context;
-import cloudfit.core.Context;
 import cloudfit.util.MultiMap;
-import java.io.File;
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.permare.wordcounter.CounterExample;
 
 /**
@@ -31,6 +34,7 @@ import org.permare.wordcounter.CounterExample;
 public class Reducer extends MapReduceConsumer {
 
     private final boolean debug = false;
+    MultiMap<String, Integer> accumulator = null;
 
     /**
      * Evaluates the number of blocks in the resource segment. This number must
@@ -63,11 +67,15 @@ public class Reducer extends MapReduceConsumer {
     @Override
     public Serializable produceBlock(int number, Serializable[] required) {
         CounterExample counter = new CounterExample();
-        MultiMap<String, Integer> map = new MultiMap<String, Integer>();
+        MultiMap<String, Integer> partial = new MultiMap<String, Integer>();
 
         try {
-            MultiMap<String, Integer> accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
-
+            if (accumulator == null) {
+                long init = System.currentTimeMillis();
+                accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
+                long end = System.currentTimeMillis();
+                System.out.println("reading for task " + number + " = " + (end - init));
+            }
             int step = (int) Math.ceil(accumulator.getKeys().size() / getNumberOfBlocks());
             for (int i = number * step; i < Math.min((number + 1) * step, accumulator.getKeys().size()); ++i) {
 
@@ -76,7 +84,7 @@ public class Reducer extends MapReduceConsumer {
 
                 MultiMap<String, Integer> stepmap = counter.reduce(key, values.iterator());
 
-                map.putAll(stepmap);
+                partial.putAll(stepmap);
             }
         } catch (Exception ex) {
             if (debug) {
@@ -84,37 +92,57 @@ public class Reducer extends MapReduceConsumer {
                 ex.printStackTrace(System.out);
             }
         }
-        return map;
+        return partial;
 
     }
 
+    public Serializable getResults(String key) {
+//        File file = Context.getResultFile(iid);
+//        Serializable result = null;
+//
+//        try {
+//            InputStream input = new FileInputStream(file);
+//            ResultParsing parse = new ResultParsing(input);
+//
+//            result = parse.getResults();
+//
+//        } catch (FileNotFoundException fnfex) {
+//            if (debug) {
+//                System.out.println("ERROR : impossible to open file");
+//                fnfex.printStackTrace(System.out);
+//            }
+//            result = null;
+//
+//        } catch (TasksCommunicationException tcex) {
+//            if (debug) {
+//                System.out.println("ERROR : impossible to parse file");
+//                tcex.printStackTrace(System.out);
+//            }
+//            result = null;
+//        }
+//
+//        return result;
 
-    public Serializable getResults(String iid) {
-        File file = Context.getResultFile(iid);
-        Serializable result = null;
 
+        Serializable element = null;
         try {
-            InputStream input = new FileInputStream(file);
-            ResultParsing parse = new ResultParsing(input);
+            //use buffering
+            InputStream file = new FileInputStream(key);
+            InputStream buffer = new BufferedInputStream(file);
+            ObjectInput input = new ObjectInputStream(buffer);
+            try {
+                //deserialize the List
+                element = (Serializable) input.readObject();
 
-            result = parse.getResults();
-
-        } catch (FileNotFoundException fnfex) {
-            if (debug) {
-                System.out.println("ERROR : impossible to open file");
-                fnfex.printStackTrace(System.out);
+            } finally {
+                input.close();
             }
-            result = null;
-
-        } catch (TasksCommunicationException tcex) {
-            if (debug) {
-                System.out.println("ERROR : impossible to parse file");
-                tcex.printStackTrace(System.out);
-            }
-            result = null;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Reducer.class.getName()).log(Level.SEVERE, "Cannot perform deserializing", ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Reducer.class.getName()).log(Level.SEVERE, "Cannot perform input", ex);
         }
-
-        return result;
+        return element;
     }
 
     @Override
@@ -124,6 +152,6 @@ public class Reducer extends MapReduceConsumer {
 
     @Override
     public void setNumberOfBlocks(int nbBlocks) {
-        this.nbBlocks=nbBlocks;
+        this.nbBlocks = nbBlocks;
     }
 }
