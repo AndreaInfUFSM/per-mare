@@ -28,7 +28,7 @@ import org.permare.wordcounter.CounterExample;
  *
  * @author kirsch
  */
-public class Reducer extends MapReduceConsumer {
+public class Reducer extends OLDMapReduceConsumer {
 
     private final boolean debug = false;
 
@@ -47,7 +47,8 @@ public class Reducer extends MapReduceConsumer {
         } catch (Exception ex) {
             nb = 1;
         }
-        nbBlocks = nb;
+        //nbBlocks = nb;
+        this.setNumberOfBlocks(nb);
 
         //return nb;
     }
@@ -117,13 +118,13 @@ public class Reducer extends MapReduceConsumer {
         return result;
     }
 
-    @Override
-    public int getNumberOfBlocks() {
-        return nbBlocks;
-    }
-
-    @Override
-    public void setNumberOfBlocks(int nbBlocks) {
-        this.nbBlocks=nbBlocks;
-    }
+//    @Override
+//    public int getNumberOfBlocks() {
+//        return nbBlocks;
+//    }
+//
+//    @Override
+//    public void setNumberOfBlocks(int nbBlocks) {
+//        this.nbBlocks=nbBlocks;
+//    }
 }

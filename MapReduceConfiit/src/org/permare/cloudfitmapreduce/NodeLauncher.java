@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.permare.confiitmapreduce.Mapper;
+import org.permare.confiitmapreduce.OLDMapper;
 import org.permare.util.FileHandler;
 
 public class NodeLauncher<K, V> {
@@ -207,7 +207,7 @@ public class NodeLauncher<K, V> {
         NodeLauncher<String, Integer> job = new NodeLauncher<String, Integer>();
         try {
             job.setOutputDirectory(args[1]);
-            job.setMapper(new Mapper());
+            job.setMapper(new OLDMapper());
             //job.setMapper("Mapper");
             job.setMapArguments(args);
 
