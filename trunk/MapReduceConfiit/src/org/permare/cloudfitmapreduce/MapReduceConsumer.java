@@ -32,34 +32,41 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
     
     
 
-    /** consumes a block of data, adding it to the accumulator.
+    /** consumes a block of data, adding it to the result_accumulator.
      * This method can be compared to a <i>combiner</i> into Hadoop. It groups
-     * results from a block, putting them into a shared variable, the accumulator. 
+     * results from a block, putting them into a shared variable, the result_accumulator. 
      * 
      * @todo Explain somewhere what is a segment and a block
      * 
      * @param number block numeber in a segment (0 a <i>n</i> - 1).
      * @param value block content
-     * @return MultiMap<K, V> containing the modified segment (the accumulator once updated)
+     * @return MultiMap<K, V> containing the modified segment (the result_accumulator once updated)
      */
-    public void consumeBlock(Serializable accumulator, int number, Serializable value) {
+    public void consumeBlock(Serializable result_accumulator, int number, Serializable value) {
         if (debug) {
             System.out.println("## consumeBlock " + number + ", " + value);
         }
 
+        
+                ((MultiMap<K,V>)result_accumulator).putAll ((MultiMap<K, V>) value);
+
+                
+        // Removed as we changed the way accumulator works. 
+        // now, instead of returning a variable, we directly modify the accumulator
+        // Furthermore, as each task does this, we don't need to check if this is a valid task number
+        
 //        if (number >= getNumberOfBlocks()) {
 //            return getAccumulator();
 //        }
 
 
-//        MultiMap<K, V> accumulator;
+//        MultiMap<K, V> result_accumulator;
 //        try {
-//            accumulator = (MultiMap<K, V>) getAccumulator();
+//            result_accumulator = (MultiMap<K, V>) getAccumulator();
 //        } catch (ClassCastException ex) {
-//            accumulator = new MultiMap<K, V>();
+//            result_accumulator = new MultiMap<K, V>();
 //        }
 
-        ((MultiMap<K,V>)accumulator).putAll ((MultiMap<K, V>) value);
         
         /*
         Set<K> keys = dataset.getKeys();
@@ -71,12 +78,15 @@ public abstract class MapReduceConsumer<K, V> extends Distributed {
             // anexar metodo a MultiMap para add multiplo
             Iterator<V> ivals = dataset.keyIterator(key);
             while (ivals.hasNext()) {
-                accumulator.add(key, (V) ivals.next());
+                result_accumulator.add(key, (V) ivals.next());
             }
         }
         */
         
-        //return accumulator;
+        //return result_accumulator;
+
+    
+    
     }
 
     /**
