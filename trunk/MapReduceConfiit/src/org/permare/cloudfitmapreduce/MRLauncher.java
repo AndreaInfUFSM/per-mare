@@ -12,11 +12,14 @@
  */
 package org.permare.cloudfitmapreduce;
 
+import cloudfit.application.ApplicationInterface;
+import cloudfit.core.Community;
 import cloudfit.core.CoreORB;
 import cloudfit.core.CoreQueue;
-import cloudfit.core.Distributed;
 import cloudfit.network.EasyPastryAdapter;
 import cloudfit.network.NetworkAdapterInterface;
+import cloudfit.storage.SerializedDiskStorage;
+import cloudfit.util.MultiMap;
 import java.io.File;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -24,36 +27,34 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.permare.confiitmapreduce.Mapper;
 import org.permare.util.FileHandler;
-import org.permare.util.MultiMap;
 
 public class MRLauncher<K, V> {
 
-    private Distributed mapperClass;
-    private String reducerClass;
+    private ApplicationInterface mapperClass;
+    private ApplicationInterface reducerClass;
     private String[] mapargs;
     private String outputDirectory;
     private Community community;
 
     public MRLauncher() {
         this.mapperClass = null;
-        this.reducerClass = "";
+        this.reducerClass = null;
     }
 
-    public void setReducer(String classname) {
+    public void setReducer(ApplicationInterface classname) {
         this.reducerClass = classname;
     }
 
-    public void setMapper(Distributed classname) {
+    public void setMapper(ApplicationInterface classname) {
         this.mapperClass = classname;
     }
 
-    public Distributed getMapper() {
+    public ApplicationInterface getMapper() {
         return this.mapperClass;
     }
 
-    public String getReducer() {
+    public ApplicationInterface getReducer() {
         return this.reducerClass;
     }
 
@@ -100,6 +101,8 @@ public class MRLauncher<K, V> {
             P2P = new EasyPastryAdapter(queue);
         }
         TDTR.setNetworkAdapter(P2P);
+        
+        TDTR.setStorage(new SerializedDiskStorage());
 
 
 
@@ -117,14 +120,19 @@ public class MRLauncher<K, V> {
         intRes = (MultiMap<K, V>) this.runMapper(community);
 
 
-//            String[] reduceargs = new String[2];
-//            reduceargs[0] = mapper;
-//            // reduceargs[1] indique combien de tasks REDUCE seront créées
-//            reduceargs[1] = Integer.toString(community.getNodes());
+            String[] reduceargs = new String[2];
+            System.out.println("Fini !");
+           //this.saveMapOutput(intRes);
+            TDTR.save("map", intRes);
+
+////            
+            reduceargs[0] = "map";
+            //reduceargs[1] indique combien de tasks REDUCE seront créées
+            //reduceargs[1] = Integer.toString(community.getNodes());
+            reduceargs[1] = Integer.toString(5);
 //            Thread.sleep(1000);
-//            intRes = this.runReducer(community, reduceargs);
-//
-//            this.saveOutput(intRes);
+            intRes = (MultiMap<K, V>) this.runReducer(community, reduceargs);
+            TDTR.save("reduce", intRes);
 
 //        } catch (Exception ex) {
 //            ex.printStackTrace(System.out);
@@ -142,25 +150,61 @@ public class MRLauncher<K, V> {
             System.out.println("mapperId =" + mapperId);
             result = community.waitJob(mapperId);
         } catch (Exception ex) {
-            Logger.getLogger(NodeLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
     }
 
-    private MultiMap<K, V> runReducer(Community community, String[] reduceargs) {
-        MultiMap<K, V> res = null;
+    private Serializable runReducer(Community community, String[] reduceargs) {
+        Serializable res = null;
+        int reducerId = 0;
         // ici on indique la classe qui fera le REDUCE
         try {
-            //String reducer = community.plug(this.getReducer(), reduceargs);
-            //community.wait(reducer);
-            //res = (MultiMap<K, V>) community.getResult(reducer, true);
+            reducerId = community.plug(this.getReducer(), reduceargs);
+            
+            res = community.waitJob(reducerId);
         } catch (Exception ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return res;
     }
 
+    
+    private void saveMapOutput(MultiMap<K, V> intRes) {
+        Set<K> keys = intRes.getKeys();
+        FileHandler fhandler;
+        File outfile, outdir;
+
+        outdir = new File(this.getOutputDirectory());
+        if (!outdir.exists()) {
+            outdir.mkdir();
+        }
+            outfile = new File(this.getOutputDirectory().concat("/temp-0000"));
+        
+
+
+        fhandler = new FileHandler(outfile);
+        if (fhandler.open(FileHandler.WRITE)) {
+
+            
+            Iterator<K> ikeys = keys.iterator();
+            while (ikeys.hasNext()) {
+                K key = ikeys.next();
+                Iterator<V> it = intRes.keyIterator(key);
+
+                while (it.hasNext()) {
+                    V group = it.next();
+                    String line = String.format("%s = %s\n", key.toString(), group.toString());
+                    fhandler.writeLine(line);
+                }
+            }
+
+            fhandler.flushing();
+            fhandler.close();
+        }
+    }
+    
     private void saveOutput(MultiMap<K, V> intRes) {
         Set<K> keys = intRes.getKeys();
         FileHandler fhandler;
@@ -170,7 +214,8 @@ public class MRLauncher<K, V> {
         if (!outdir.exists()) {
             outdir.mkdir();
         }
-        outfile = new File(this.getOutputDirectory().concat("/part-00000"));
+            outfile = new File(this.getOutputDirectory().concat("/part-00000"));
+        
 
 
         fhandler = new FileHandler(outfile);
@@ -204,35 +249,30 @@ public class MRLauncher<K, V> {
         try {
             job.setOutputDirectory(args[1]);
             job.setMapper(new Mapper());
-            //job.setMapper("Mapper");
             job.setMapArguments(args);
 
-            job.setReducer("org.permare.confiitmapreduce.Reducer");
+            job.setReducer(new Reducer());
             //job.setReducer("Reducer");
 
             MultiMap<String, Integer> res = job.runJob();
-            //MultiMap<String, Integer> res=new MultiMap<String,Integer>();
-            //res.putAll(copyres);
             
+            job.saveOutput(res);
             
-            // TODO : Iterator raises a ConcurrentModificationException when iterating over result MultiMap
-            // a possible solution would be a clone() method that returns a fresh "independent" multimap
-            
-            System.out.println("mapper2  =" + res);
-                // prints Mapper intermediate results
-
-                Set<String> keys = res.getKeys();
-                System.out.println("keys size = " + keys.size());
-                Iterator ikeys = keys.iterator();
-                while (ikeys.hasNext()) {
-                    String key = (String) ikeys.next();
-                    System.out.print(key + " - ");
-                    Iterator it = res.keyIterator(key);
-                    while (it.hasNext()) {
-                        System.out.print(it.next());
-                    }
-                    System.out.println("");
-                }
+//            System.out.println("mapper2  =" + res);
+//                // prints Mapper intermediate results
+//
+//                Set<String> keys = res.getKeys();
+//                System.out.println("keys size = " + keys.size());
+//                Iterator ikeys = keys.iterator();
+//                while (ikeys.hasNext()) {
+//                    String key = (String) ikeys.next();
+//                    System.out.print(key + " - ");
+//                    Iterator it = res.keyIterator(key);
+//                    while (it.hasNext()) {
+//                        System.out.print(it.next());
+//                    }
+//                    System.out.println("");
+//                }
 
             //countTotal(res);
 
