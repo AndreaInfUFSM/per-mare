@@ -71,11 +71,11 @@ public class Reducer extends MapReduceConsumer {
 
         try {
             if (accumulator == null) {
-                long init = System.currentTimeMillis();
                 accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
-                long end = System.currentTimeMillis();
-                System.out.println("reading for task " + number + " = " + (end - init));
             }
+                            long init = System.currentTimeMillis();
+                            
+            System.out.println(accumulator.getKeys().size());
             int step = (int) Math.ceil(accumulator.getKeys().size() / getNumberOfBlocks());
             for (int i = number * step; i < Math.min((number + 1) * step, accumulator.getKeys().size()); ++i) {
 
@@ -83,9 +83,13 @@ public class Reducer extends MapReduceConsumer {
                 Collection<Integer> values = accumulator.getValues(key);
 
                 MultiMap<String, Integer> stepmap = counter.reduce(key, values.iterator());
-
+                //System.out.println("top");
                 partial.putAll(stepmap);
+                
             }
+            long end = System.currentTimeMillis();
+            System.out.println("reduce for task " + number + " = " + (end - init));
+
         } catch (Exception ex) {
             if (debug) {
                 System.out.println("ERROR : impossible to perform reduce");
