@@ -113,11 +113,18 @@ public class MRLauncher<K, V> {
         community = new Community(1, TDTR);
 
         TDTR.subscribe(community);
+        
+            ///////////////////////////////////////
 
-        ///////////////////////////////////////
-
-        //try {
-
+            //try {
+        
+        try {
+            System.out.println("a little sleep to ensure all nodes are connected");
+            Thread.sleep(5000);
+            System.out.println("starting");
+        } catch (InterruptedException ex) {
+            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+        }
         intRes = (MultiMap<K, V>) this.runMapper(community);
 
 
@@ -130,7 +137,7 @@ public class MRLauncher<K, V> {
             reduceargs[0] = "map";
             //reduceargs[1] indique combien de tasks REDUCE seront créées
             //reduceargs[1] = Integer.toString(community.getNodes());
-            reduceargs[1] = Integer.toString(5);
+            reduceargs[1] = Integer.toString(10);
 //            Thread.sleep(1000);
             intRes = (MultiMap<K, V>) this.runReducer(community, reduceargs);
             TDTR.save("reduce", intRes);
@@ -249,7 +256,7 @@ public class MRLauncher<K, V> {
         MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
         try {
             job.setOutputDirectory(args[1]);
-            job.setMapper(new Mapper());
+            job.setMapper(new MapperArray());
             job.setMapArguments(args);
 
             job.setReducer(new Reducer());
