@@ -102,7 +102,7 @@ public class NodeLauncher<K, V> {
             
         } else {
             // if peer == null then launch discovery
-            P2P = new EasyPastryAdapter(queue);
+            P2P = new EasyPastryAdapter(queue,null);
         }
         TDTR.setNetworkAdapter(P2P);
         
