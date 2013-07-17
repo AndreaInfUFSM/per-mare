@@ -131,7 +131,7 @@ public class FileHandler {
               this.in = new BufferedReader(new FileReader(this.filename));
           }  
           else {
-              this.out = /*new PrintWriter (*/new BufferedWriter(new FileWriter(this.filename))/*)*/;
+              this.out = /*new PrintWriter (*/new BufferedWriter(new FileWriter(this.filename,false))/*)*/;
           }
           
           ok = true; //file is open

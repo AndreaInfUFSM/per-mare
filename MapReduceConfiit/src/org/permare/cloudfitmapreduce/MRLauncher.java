@@ -27,6 +27,14 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.permare.util.FileHandler;
 
 public class MRLauncher<K, V> {
@@ -36,6 +44,7 @@ public class MRLauncher<K, V> {
     private String[] mapargs;
     private String outputDirectory;
     private Community community;
+    private CoreORB TDTR;
 
     public MRLauncher() {
         this.mapperClass = null;
@@ -78,12 +87,37 @@ public class MRLauncher<K, V> {
         Serializable mapper;                  // Result de l'instance Mapper
         MultiMap<K, V> intRes = null;
 
+
+        intRes = (MultiMap<K, V>) this.runMapper(community);
+
+        String[] reduceargs = new String[2];
+        //System.out.println("Fini !");
+        //this.saveMapOutput(intRes);
+        TDTR.save("map", intRes);
+
+////            
+        reduceargs[0] = "map";
+        //reduceargs[1] indique combien de tasks REDUCE seront créées
+        //reduceargs[1] = Integer.toString(community.getNodes());
+        reduceargs[1] = Integer.toString(10);
+
+        intRes = (MultiMap<K, V>) this.runReducer(community, reduceargs);
+
+        //TDTR.save("reduce", intRes);
+
+        this.saveOutput(intRes);
+
+
+        return intRes;
+    }
+
+    private void initNetwork(InetSocketAddress peer) {
         ///////////////////// Pastry
 
         /* Declaration of the main class
          * all the internal initialization is made on the constructor
          */
-        CoreORB TDTR = new CoreORB();
+        TDTR = new CoreORB();
 
         /* Define if connecting to a peer or network discovery
          * 
@@ -93,18 +127,11 @@ public class MRLauncher<K, V> {
         TDTR.setQueue(queue);
 
         NetworkAdapterInterface P2P = null;
-        if (mapargs.length > 2) {
-            InetSocketAddress peer = new InetSocketAddress(mapargs[2], Integer.parseInt(mapargs[3]));
-            P2P = new EasyPastryAdapter(queue, peer);
+        P2P = new EasyPastryAdapter(queue, peer);
 
-        } else {
-            // if peer == null then launch discovery
-            P2P = new EasyPastryAdapter(queue);
-        }
         TDTR.setNetworkAdapter(P2P);
-        
-        TDTR.setStorage(new SerializedDiskStorage());
 
+        TDTR.setStorage(new SerializedDiskStorage());
 
 
         /* creates a module to plug on the main class
@@ -113,40 +140,14 @@ public class MRLauncher<K, V> {
         community = new Community(1, TDTR);
 
         TDTR.subscribe(community);
-        
-            ///////////////////////////////////////
 
-            //try {
-        
         try {
             System.out.println("a little sleep to ensure all nodes are connected");
             Thread.sleep(5000);
-            System.out.println("starting");
+            System.out.println("starting network");
         } catch (InterruptedException ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
-        intRes = (MultiMap<K, V>) this.runMapper(community);
-
-
-            String[] reduceargs = new String[2];
-            System.out.println("Fini !");
-           //this.saveMapOutput(intRes);
-            TDTR.save("map", intRes);
-
-////            
-            reduceargs[0] = "map";
-            //reduceargs[1] indique combien de tasks REDUCE seront créées
-            //reduceargs[1] = Integer.toString(community.getNodes());
-            reduceargs[1] = Integer.toString(10);
-//            Thread.sleep(1000);
-            intRes = (MultiMap<K, V>) this.runReducer(community, reduceargs);
-            TDTR.save("reduce", intRes);
-
-//        } catch (Exception ex) {
-//            ex.printStackTrace(System.out);
-//        }
-
-        return intRes;
     }
 
     private Serializable runMapper(Community community) {
@@ -155,7 +156,7 @@ public class MRLauncher<K, V> {
         try {
             // ici on indique la classe qui fera le MAP
             mapperId = community.plug(this.getMapper(), this.getMapArguments());
-            System.out.println("mapperId =" + mapperId);
+            System.out.println("mapperId = " + mapperId);
             result = community.waitJob(mapperId);
         } catch (Exception ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
@@ -170,7 +171,7 @@ public class MRLauncher<K, V> {
         // ici on indique la classe qui fera le REDUCE
         try {
             reducerId = community.plug(this.getReducer(), reduceargs);
-            
+
             res = community.waitJob(reducerId);
         } catch (Exception ex) {
             Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
@@ -178,7 +179,6 @@ public class MRLauncher<K, V> {
         return res;
     }
 
-    
     private void saveMapOutput(MultiMap<K, V> intRes) {
         Set<K> keys = intRes.getKeys();
         FileHandler fhandler;
@@ -188,14 +188,14 @@ public class MRLauncher<K, V> {
         if (!outdir.exists()) {
             outdir.mkdir();
         }
-            outfile = new File(this.getOutputDirectory().concat("/temp-0000"));
-        
+        outfile = new File(this.getOutputDirectory().concat("/temp-0000"));
+
 
 
         fhandler = new FileHandler(outfile);
         if (fhandler.open(FileHandler.WRITE)) {
 
-            
+
             Iterator<K> ikeys = keys.iterator();
             while (ikeys.hasNext()) {
                 K key = ikeys.next();
@@ -212,7 +212,7 @@ public class MRLauncher<K, V> {
             fhandler.close();
         }
     }
-    
+
     private void saveOutput(MultiMap<K, V> intRes) {
         Set<K> keys = intRes.getKeys();
         FileHandler fhandler;
@@ -222,8 +222,8 @@ public class MRLauncher<K, V> {
         if (!outdir.exists()) {
             outdir.mkdir();
         }
-            outfile = new File(this.getOutputDirectory().concat("/part-00000"));
-        
+        outfile = new File(this.getOutputDirectory().concat("/part-00000"));
+
 
 
         fhandler = new FileHandler(outfile);
@@ -249,47 +249,106 @@ public class MRLauncher<K, V> {
     public static void main(String[] args) {
         long start;
         long end;
-        start = System.currentTimeMillis();
 
 
+        Options options = new Options();
+        Option help = new Option("help", "print this message");
+        Option sourceDir = OptionBuilder.withArgName("src")
+                .hasArg()
+                .withDescription("Source directory for map-reduce data")
+                .create("src");
+        //sourceDir.setRequired(true);
+        Option destDir = OptionBuilder.withArgName("dst")
+                .hasArg()
+                .withDescription("Destination directory for map-reduce data")
+                .create("dst");
+        //destDir.setRequired(true);
+        Option node = OptionBuilder.withArgName("node")
+                .hasArg()
+                .withDescription("Optional address to join the P2P network")
+                .create("node");
+        Option port = OptionBuilder.withArgName("port")
+                .hasArg()
+                .withDescription("Optional port to join the P2P network")
+                .create("port");
 
-        MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
+        options.addOption(sourceDir);
+        options.addOption(destDir);
+        options.addOption(node);
+        options.addOption(port);
+
+
+        // create the parser
+        CommandLineParser parser = new PosixParser();
+        CommandLine line = null;
         try {
-            job.setOutputDirectory(args[1]);
-            job.setMapper(new MapperArray());
-            job.setMapArguments(args);
+            // parse the command line arguments
+            line = parser.parse(options, args);
+        } catch (ParseException exp) {
+            // oops, something went wrong
+            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+            usage(options);
+            return;
+        }
 
+        // OPTION PARSING
+
+        // is there a "node" and "port" option ?
+
+        InetSocketAddress peer = null; // the defaut value = discovery
+
+        if (line.hasOption("node")) {
+            if (line.hasOption("port")) {
+                peer = new InetSocketAddress(line.getOptionValue("node"), Integer.parseInt(line.getOptionValue("port")));
+            } else {
+                peer = new InetSocketAddress(line.getOptionValue("node"), 7777);
+            }
+
+        }
+
+        boolean master = false;
+
+        String[] initArgs = new String[2];
+        if (line.hasOption("src") && line.hasOption("dst")) {
+            initArgs[0] = line.getOptionValue("src");
+            initArgs[1] = line.getOptionValue("dst");
+            master = true;
+        }
+
+        try {
+            MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
+
+            job.initNetwork(peer);
+
+            job.setOutputDirectory(initArgs[1]);
+            job.setMapper(new Mapper());
+            job.setMapArguments(initArgs);
             job.setReducer(new Reducer());
+
             //job.setReducer("Reducer");
+            if (master) {
+                start = System.currentTimeMillis();
 
-            MultiMap<String, Integer> res = job.runJob();
-            
-            job.saveOutput(res);
-            
-//            System.out.println("mapper2  =" + res);
-//                // prints Mapper intermediate results
-//
-//                Set<String> keys = res.getKeys();
-//                System.out.println("keys size = " + keys.size());
-//                Iterator ikeys = keys.iterator();
-//                while (ikeys.hasNext()) {
-//                    String key = (String) ikeys.next();
-//                    System.out.print(key + " - ");
-//                    Iterator it = res.keyIterator(key);
-//                    while (it.hasNext()) {
-//                        System.out.print(it.next());
-//                    }
-//                    System.out.println("");
-//                }
+                MultiMap<String, Integer> res = job.runJob();
 
-            //countTotal(res);
+                end = System.currentTimeMillis();
+
+                System.out.println("Total time = " + (end - start));
+
+                System.exit(0);
+            }
+
 
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
-        end = System.currentTimeMillis();
+    }
 
-        System.out.println("Total time = " + (end - start));
+    private static void usage(Options options) {
+
+        // Use the inbuilt formatter class
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("MRLauncher", options);
 
     }
 
