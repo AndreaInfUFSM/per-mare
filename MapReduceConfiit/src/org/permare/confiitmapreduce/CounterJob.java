@@ -19,7 +19,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.permare.util.FileHandler;
-import org.permare.util.MultiMap;
+//fixed import
+//import org.permare.util.MultiMap;
+import cloudfit.util.MultiMap;
 
 public class CounterJob<K, V> {
 
