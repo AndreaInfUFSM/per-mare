@@ -12,7 +12,8 @@
  */
 package org.permare.wordcounter;
 
-import cloudfit.util.MultiMap;
+//import cloudfit.util.MultiMap;
+import org.permare.util.MultiMap;
 import java.util.Iterator;
 
 /**
