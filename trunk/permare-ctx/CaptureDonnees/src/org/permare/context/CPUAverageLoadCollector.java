@@ -12,10 +12,10 @@
  */
 package org.permare.context;
 
-import com.sun.istack.internal.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * collects and calculates the system CPU load based on multiple observations
@@ -67,7 +67,7 @@ public class CPUAverageLoadCollector extends AbstractOSCollector {
             try { //sleep a little before a new observation
                 Thread.sleep(this.interval);
             } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(CPUAverageLoadCollector.class.getName()).log(Level.WARNING,
+                java.util.logging.Logger.getLogger(getClass().getName()).log(Level.WARNING,
                         "Interreupted spleep, maybe collecting load information on a shorter interval", ex);
             }
         }

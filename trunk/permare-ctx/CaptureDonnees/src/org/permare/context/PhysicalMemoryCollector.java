@@ -12,10 +12,10 @@
  */
 package org.permare.context;
 
-import com.sun.istack.internal.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PhysicalMemoryCollector extends AbstractOSCollector {
 
@@ -35,7 +35,7 @@ public class PhysicalMemoryCollector extends AbstractOSCollector {
             results.add(new Float(bean.getTotalPhysicalMemorySize()/1024));
             results.add(new Float(bean.getTotalSwapSpaceSize()/1024));
         } else {
-            Logger.getLogger(getClass()).log(Level.INFO,
+            Logger.getLogger(getClass().getName()).log(Level.INFO,
                     "No current information about physical memory available, getting only the VM total memory");
         }
 

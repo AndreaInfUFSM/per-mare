@@ -13,11 +13,11 @@
 package org.permare.context;
 
 //import java.lang.management.OperatingSystemMXBean;
-import com.sun.istack.internal.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 import com.sun.management.OperatingSystemMXBean;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Process and System CPU load. 
@@ -43,7 +43,7 @@ public class CPULoadCollector extends AbstractOSCollector {
             results.add(new Double(bean.getSystemCpuLoad()));
         }
         else {
-            Logger.getLogger(getClass()).log(Level.INFO, 
+            Logger.getLogger(getClass().getName()).log(Level.INFO, 
                     "No current Process and CPU load information available, getting the average.");
         }
         
