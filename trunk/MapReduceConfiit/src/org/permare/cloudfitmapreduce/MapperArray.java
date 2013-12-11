@@ -2,7 +2,7 @@
  * PER-MARE Project (project number 13STIC07)
  * http://cosy.univ-reims.fr/~lsteffenel/per-mare
  * A CAPES/MAEE/ANII STIC-AmSud collaboration program.
- * All rigths reserved to project partners:
+ * All rights reserved to project partners:
  *  - Universite de Reims Champagne-Ardenne, Reims, France 
  *  - Universite Paris 1 Pantheon Sorbonne, Paris, France
  *  - Universidade Federal de Santa Maria, Santa Maria, Brazil
@@ -12,7 +12,6 @@
  */
 package org.permare.cloudfitmapreduce;
 
-import cloudfit.util.MultiMap;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.permare.confiitmapreduce.OLDMapReduceConsumer;
 import org.permare.util.FileHandler;
+import org.permare.util.MultiMap;
 import org.permare.wordcounter.CounterExample;
 
 /**

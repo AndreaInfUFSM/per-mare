@@ -17,7 +17,10 @@ import cloudfit.core.CoreORB;
 import cloudfit.core.CoreQueue;
 import cloudfit.core.TheBigFactory;
 import cloudfit.network.NetworkAdapterInterface;
+import cloudfit.network.sockets.PastrySocketAdapter;
 import cloudfit.service.Community;
+import cloudfit.storage.SerializedDiskStorage;
+import cloudfit.util.MultiMap;
 import java.io.File;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -34,9 +37,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.permare.util.FileHandler;
-import org.permare.util.MultiMap;
 
-public class MRLauncher<K, V> {
+public class SocketLauncher<K, V> {
 
     private ApplicationInterface mapperClass;
     private ApplicationInterface reducerClass;
@@ -45,7 +47,7 @@ public class MRLauncher<K, V> {
     private Community community;
     private CoreORB TDTR;
 
-    public MRLauncher() {
+    public SocketLauncher() {
         this.mapperClass = null;
         this.reducerClass = null;
     }
@@ -94,11 +96,12 @@ public class MRLauncher<K, V> {
         //this.saveMapOutput(intRes);
         TDTR.save("map", intRes);
 
-////            
+////    
+        System.out.println("Starting reduce");
         reduceargs[0] = "map";
         //reduceargs[1] indique combien de tasks REDUCE seront créées
         //reduceargs[1] = Integer.toString(community.getNodes());
-        reduceargs[1] = Integer.toString(48);
+        reduceargs[1] = Integer.toString(16);
 
         intRes = (MultiMap<K, V>) this.runReducer(community, reduceargs);
 
@@ -117,34 +120,40 @@ public class MRLauncher<K, V> {
          * all the internal initialization is made on the constructor
          */
         TDTR = (CoreORB) TheBigFactory.getORB();
+         
 
         /* Define if connecting to a peer or network discovery
          * 
          */
         CoreQueue queue = TheBigFactory.getCoreQueue();
         
-        NetworkAdapterInterface P2P = TheBigFactory.getP2P(queue, peer);
-
         TDTR.setQueue(queue);
         
-        TDTR.setNetworkAdapter(P2P);
-
-        TDTR.setStorage(TheBigFactory.getStorage());
-
-
         /* creates a module to plug on the main class
          * and subscribe it to the messaging system
          */
         community = new Community(1, TDTR);
 
+        
+        NetworkAdapterInterface P2P = new PastrySocketAdapter(queue, peer, community);
+
+        
+        TDTR.setNetworkAdapter(P2P);
+        
         TDTR.subscribe(community);
 
+        TDTR.setStorage(new SerializedDiskStorage());
+        //TDTR.setStorage((StorageAdapterInterface)P2P);
+        //TDTR.setLocalStorage(new SerializedDiskStorage());
+
+
+        
         try {
             System.out.println("a little sleep to ensure all nodes are connected");
             Thread.sleep(5000);
             System.out.println("starting network");
         } catch (InterruptedException ex) {
-            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -157,7 +166,7 @@ public class MRLauncher<K, V> {
             System.out.println("mapperId = " + mapperId);
             result = community.waitJob(mapperId);
         } catch (Exception ex) {
-            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return result;
 
@@ -172,7 +181,7 @@ public class MRLauncher<K, V> {
 
             res = community.waitJob(reducerId);
         } catch (Exception ex) {
-            Logger.getLogger(MRLauncher.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SocketLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
         return res;
     }
@@ -314,7 +323,7 @@ public class MRLauncher<K, V> {
         }
 
         try {
-            MRLauncher<String, Integer> job = new MRLauncher<String, Integer>();
+            SocketLauncher<String, Integer> job = new SocketLauncher<String, Integer>();
 
             job.initNetwork(peer);
 
@@ -331,6 +340,8 @@ public class MRLauncher<K, V> {
 
                 end = System.currentTimeMillis();
 
+                Thread.sleep(3000);
+                
                 System.err.println("Total time = " + (end - start));
 
                 System.out.println("Total time = " + (end - start));

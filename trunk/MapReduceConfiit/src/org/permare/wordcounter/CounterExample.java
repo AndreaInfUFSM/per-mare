@@ -2,7 +2,7 @@
  * PER-MARE Project (project number 13STIC07)
  * http://cosy.univ-reims.fr/~lsteffenel/per-mare
  * A CAPES/MAEE/ANII STIC-AmSud collaboration program.
- * All rigths reserved to project partners:
+ * All rights reserved to project partners:
  *  - Universite de Reims Champagne-Ardenne, Reims, France 
  *  - Universite Paris 1 Pantheon Sorbonne, Paris, France
  *  - Universidade Federal de Santa Maria, Santa Maria, Brazil
@@ -12,8 +12,8 @@
  */
 package org.permare.wordcounter;
 
-import cloudfit.util.MultiMap;
 import java.util.Iterator;
+import org.permare.util.MultiMap;
 
 /**
  * CounterExample is a test class allowing counting words in a text. It can be
@@ -63,13 +63,18 @@ public class CounterExample {
         int sum = 0;
         
         //System.out.println("Reducing " + key );
-
+        long beg = System.currentTimeMillis();
         while (values.hasNext()) {
             sum += values.next().intValue();
         }
 
-        map.add(key, new Integer(sum));
+        long med = System.currentTimeMillis();
 
+        map.add(key, new Integer(sum));
+        
+        long end = System.currentTimeMillis();
+
+        //System.out.println("while =" + (med-beg) + " add =" + (end-med));
         return map;
     }
 }

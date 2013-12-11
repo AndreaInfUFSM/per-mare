@@ -2,7 +2,7 @@
  * PER-MARE Project (project number 13STIC07)
  * http://cosy.univ-reims.fr/~lsteffenel/per-mare
  * A CAPES/MAEE/ANII STIC-AmSud collaboration program.
- * All rigths reserved to project partners:
+ * All rights reserved to project partners:
  *  - Universite de Reims Champagne-Ardenne, Reims, France 
  *  - Universite Paris 1 Pantheon Sorbonne, Paris, France
  *  - Universidade Federal de Santa Maria, Santa Maria, Brazil
@@ -13,7 +13,6 @@
 package org.permare.cloudfitmapreduce;
 
 //import confiit.util.Context;
-import cloudfit.util.MultiMap;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.permare.util.MultiMap;
 import org.permare.wordcounter.CounterExample;
 
 /**
@@ -64,31 +64,81 @@ public class Reducer extends MapReduceConsumer {
      * @param required required blocks (results from prerequired tasks)
      * @return MultiMap<String, Integer> results
      */
+//    @Override
+//    public Serializable produceBlock(int number, Serializable[] required) {
+//        CounterExample counter = new CounterExample();
+//        MultiMap<String, Integer> partial = new MultiMap<String, Integer>();
+//        long init1 = System.currentTimeMillis();
+//        try {
+//
+//            if (accumulator == null) {
+//                accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
+//            }
+//            //                
+//
+//            //System.out.println(accumulator.getKeys().size());
+//
+//            int step = (int) Math.ceil(accumulator.getKeys().size() / getNumberOfBlocks());
+//
+//            long init2 = System.currentTimeMillis();
+//
+//            for (int i = number * step; i < Math.min((number + 1) * step, accumulator.getKeys().size()); ++i) {
+//                //long init1 = System.currentTimeMillis();
+//                String key = accumulator.getKey(i);
+//                Collection<Integer> values = accumulator.getValues(key);
+//                //long init2 = System.currentTimeMillis();
+//                MultiMap<String, Integer> stepmap = counter.reduce(key, values.iterator());
+//                //long init3 = System.currentTimeMillis();
+//                partial.putAll(stepmap);
+//                //long init4 = System.currentTimeMillis();
+//                //System.out.println("reduce times = "+(init2-init1)+"/"+(init3-init2)+"/"+(init4-init3));
+//            }
+//
+//            long end = System.currentTimeMillis();
+//            System.out.println("reduce for task " + number + " = " + (init2 - init1) + "/" + (end - init2));
+//
+//        } catch (Exception ex) {
+//            if (debug) {
+//                System.out.println("ERROR : impossible to perform reduce");
+//                ex.printStackTrace(System.out);
+//            }
+//        }
+//        return partial;
+//
+//    }
+
     @Override
     public Serializable produceBlock(int number, Serializable[] required) {
         CounterExample counter = new CounterExample();
         MultiMap<String, Integer> partial = new MultiMap<String, Integer>();
+        
+        long init1 = System.currentTimeMillis();
 
         try {
+                
             if (accumulator == null) {
                 accumulator = (MultiMap<String, Integer>) getResults(getArgs()[0]);
             }
-            //                long init = System.currentTimeMillis();
                             
             //System.out.println(accumulator.getKeys().size());
+                            
             int step = (int) Math.ceil(accumulator.getKeys().size() / getNumberOfBlocks());
-            for (int i = number * step; i < Math.min((number + 1) * step, accumulator.getKeys().size()); ++i) {
-
-                String key = accumulator.getKey(i);
-                Collection<Integer> values = accumulator.getValues(key);
-
-                MultiMap<String, Integer> stepmap = counter.reduce(key, values.iterator());
-                //System.out.println("top");
+            String[] keys = accumulator.getKeys().toArray(new String[0]);
+            long init2 = System.currentTimeMillis();
+            for (int i = number * step; i < Math.min((number + 1) * step, keys.length); ++i) {
+                //long init1 = System.currentTimeMillis();
+                //String key = accumulator.getKey(i);
+                Collection<Integer> values = accumulator.getValues(keys[i]);
+                //long init2 = System.currentTimeMillis();
+                MultiMap<String, Integer> stepmap = counter.reduce(keys[i], values.iterator());
+                //long init3 = System.currentTimeMillis();
                 partial.putAll(stepmap);
-                
+                //long init4 = System.currentTimeMillis();
+                //System.out.println("reduce times = "+(init2-init1)+"/"+(init3-init2)+"/"+(init4-init3));
             }
-            //long end = System.currentTimeMillis();
-            //System.out.println("reduce for task " + number + " = " + (end - init));
+                            
+            long end = System.currentTimeMillis();
+            System.out.println("reduce for task " + number + " = " + (init2-init1)+"/"+(end - init2));
 
         } catch (Exception ex) {
             if (debug) {
@@ -99,7 +149,10 @@ public class Reducer extends MapReduceConsumer {
         return partial;
 
     }
-
+    
+    
+    
+    
     public Serializable getResults(String key) {
 //        File file = Context.getResultFile(iid);
 //        Serializable result = null;
@@ -148,7 +201,6 @@ public class Reducer extends MapReduceConsumer {
         }
         return element;
     }
-
 // this code was mouved to the super class.     
 //    @Override
 //    public int getNumberOfBlocks() {
