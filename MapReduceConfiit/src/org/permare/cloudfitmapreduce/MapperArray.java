@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.permare.confiitmapreduce.OLDMapReduceConsumer;
 import org.permare.util.FileHandler;
 import org.permare.util.MultiMap;
 import org.permare.wordcounter.CounterExample;
@@ -31,7 +30,7 @@ import org.permare.wordcounter.CounterExample;
  *
  * @author kirsch
  */
-public class MapperArray extends OLDMapReduceConsumer {
+public class MapperArray extends MapReduceConsumer {
 
     private static final int ARGS_FILENAME_POSITION = 0;
     private File[] filenames;
