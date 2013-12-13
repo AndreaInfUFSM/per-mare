@@ -12,7 +12,7 @@
  */
 package org.permare.cloudfitmapreduce;
 
-import cloudfit.service.Distributed;
+import cloudfit.application.Distributed;
 import java.io.Serializable;
 import org.permare.util.MultiMap;
 
