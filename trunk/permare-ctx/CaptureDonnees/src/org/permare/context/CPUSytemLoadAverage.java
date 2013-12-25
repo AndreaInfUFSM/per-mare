@@ -14,39 +14,32 @@ package org.permare.context;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * collects information about available physical memory (in KB).
- *
+ * Collects the CPU System load. 
+ * Roughly, system load indicates how many processes are in the execution queue. 
+ * If this number is less than the number of available CPU cores, that means all  
+ * process are able to run. Otherwise, there are #Load-#Cores processes waiting
+ * for execution. 
+ * @see http://en.wikipedia.org/wiki/Load_(computing)
  * @author kirsch
  */
-public class PhysicalMemoryCollector extends AbstractOSCollector<Double> {
+public class CPUSytemLoadAverage extends AbstractOSCollector<Double>  {
     
-    public static String COLLECTOR_NAME = "#Thing.Device.Memory.Physical.Total";
-    public static String COLLECTOR_DESCR = "Total physical memory size (in Kb)";
+    public static String COLLECTOR_NAME = "#Thing.Device.CPU.System.Load.Average";
+    public static String COLLECTOR_DESCR = "System load average.";
 
-    public PhysicalMemoryCollector() {
+    public CPUSytemLoadAverage() {
         super.setName(COLLECTOR_NAME);
         super.setDescription(COLLECTOR_DESCR);
     }
 
+    
     @Override
     public List<Double> collect() {
         List<Double> results = new ArrayList<>(1);
-        if (this.getBean() instanceof com.sun.management.OperatingSystemMXBean) {
-            com.sun.management.OperatingSystemMXBean bean
-                    = (com.sun.management.OperatingSystemMXBean) this.getBean();
-
-            results.add(new Double(bean.getTotalPhysicalMemorySize() / 1024));
-        }
-        else {
-            Logger.getLogger(getClass().getName()).log(Level.INFO,
-                    "No current information about physical memory available");
-        }
-        
+        results.add(new Double(getBean().getSystemLoadAverage()));
         return results;
     }
-
+    
 }

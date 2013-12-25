@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FreeMemoryCollector extends AbstractOSCollector {
+public class FreeMemoryCollector extends AbstractOSCollector<Double> {
 
     public FreeMemoryCollector() {
         super.setName("Free Memory");
