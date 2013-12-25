@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  *
  * @author kirsch
  */
-public class CPUAverageLoadCollector extends AbstractOSCollector {
+public class CPUAverageLoadCollector extends AbstractOSCollector<Double> {
 
     public static final int DEFAULT_NB_OBSERVATIONS = 5;
     public static final int DEFAULT_INTERVAL = 500;
@@ -32,7 +32,7 @@ public class CPUAverageLoadCollector extends AbstractOSCollector {
     private int nbObs;
 
     public CPUAverageLoadCollector() {
-        super.setName("CPULoad");
+        super.setName("System load");
         super.setDescription("Average System load accros multiple observations");
         this.interval = DEFAULT_NB_OBSERVATIONS;
         this.nbObs = DEFAULT_INTERVAL;
@@ -55,7 +55,7 @@ public class CPUAverageLoadCollector extends AbstractOSCollector {
     }
 
     @Override
-    public List collect() {
+    public List<Double> collect() {
         List<Double> results = new ArrayList<>();
         double[] observations = new double[this.nbObs];
 
@@ -72,12 +72,12 @@ public class CPUAverageLoadCollector extends AbstractOSCollector {
             }
         }
 
-        results.add(this.average(observations));
+        results.add(new Double(this.average(observations)));
 
         return results;
     }
 
-    protected Double average(double obs[]) {
+    protected double average(double obs[]) {
         double moy = 0;
 
         for (double o : obs) {
@@ -90,6 +90,6 @@ public class CPUAverageLoadCollector extends AbstractOSCollector {
             moy = 0;
         }
 
-        return new Double(moy);
+        return moy;
     }
 }

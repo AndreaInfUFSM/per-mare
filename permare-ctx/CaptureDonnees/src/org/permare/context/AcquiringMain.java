@@ -74,7 +74,7 @@ public class AcquiringMain {
         main.collectAndShow();
         
         //do something
-        //System.out.println("couting until 15000 and sleeping 5s");
+        System.out.println("couting until 15000 and sleeping 5s");
         main.losttime(15000);
         main.gosleep(5);
         
@@ -121,16 +121,24 @@ public class AcquiringMain {
 
     
     public void setCollectors() {
-        this.addCollector(new CPULoadCollector());
-        this.addCollector(new SigarCPUCollector());
-        this.addCollector(new CPUAverageLoadCollector());
-        this.addCollector(new FreeMemoryCollector());
-        this.addCollector(new SigarFreeMemoryCollector());
-        this.addCollector(new PhysicalMemoryCollector());
-        this.addCollector(new TotalProcessorsCollector());
-        this.addCollector(new SigarCoreNumberCollector());
-        this.addCollector(new AvailableDiskSpaceCollector());
+        //test ones
+//        this.addCollector(new CPULoadCollector());
+//        this.addCollector(new SigarCPUCollector());
+//        this.addCollector(new CPUAverageLoadCollector());
+//        this.addCollector(new FreeMemoryCollector());
+//        this.addCollector(new SigarFreeMemoryCollector());
+//        this.addCollector(new MemoryCollector());
+//        this.addCollector(new SigarCoreNumberCollector());
+//        this.addCollector(new AvailableDiskSpaceCollector());
         
+        //good ones
+        this.addCollector(new CPUSytemLoadAverage());
+        this.addCollector(new CPUSystemLoad());
+        this.addCollector(new PhysicalMemoryCollector());
+        this.addCollector(new FreePhysicalMemoryCollector());
+        this.addCollector(new FreeVMMemoryCollector());
+        this.addCollector(new TotalProcessorsCollector());
+        this.addCollector(new UnallocatedStorageCollector());
     }
 }
 

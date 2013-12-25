@@ -10,31 +10,29 @@
  * 
  * *************************************************************** *
  */
+
 package org.permare.context;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * collects the total number of cores observed using the OperatingSystemMXBean
- * and the one observed by the VM Runtime. 
+ * collects information about the free memory on the Java VM.
  * @author kirsch
  */
-public class TotalProcessorsCollector extends AbstractOSCollector<Double> {
-
-    public static String COLLECTOR_NAME = "#Thing.Device.Processor.Available";
-    public static String COLLECTOR_DESCR = "Total nb of available processors (or cores)";
+public class FreeVMMemoryCollector extends AbstractCollector<Double> {
+    public static String COLLECTOR_NAME = "#Thing.VM.Memory.Available";
+    public static String COLLECTOR_DESCR = "VM free memory (in Kb)";
     
-    public TotalProcessorsCollector() {
-        super.setName(COLLECTOR_NAME);
+    public FreeVMMemoryCollector() {
+        super.setName(COLLECTOR_NAME); 
         super.setDescription(COLLECTOR_DESCR);
     }
 
     @Override
     public List<Double> collect() {
-        List<Double> results = new ArrayList<>(2);
-        results.add(new Double(this.getBean().getAvailableProcessors()));
-        results.add(new Double(Runtime.getRuntime().availableProcessors()));
+        List<Double> results = new ArrayList<>(1);
+        results.add(new Double(Runtime.getRuntime().freeMemory()/1024));
         return results;
     }
     
